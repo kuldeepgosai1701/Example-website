@@ -1,0 +1,81 @@
+<<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d9488" />
+  <title>Gyroscope Explorer</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <style>
+    .rotate-box {
+      transition: transform 0.1s ease-out;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+  <header class="mb-8 text-center">
+    <h1 class="text-4xl font-bold mb-2">Gyroscope Explorer</h1>
+    <p class="text-lg">Move your phone to explore real-time sensor data</p>
+  </header>
+
+  <button onclick="initGyroscope()"
+    class="mb-6 px-6 py-3 bg-white text-teal-600 rounded-full font-bold shadow-lg hover:bg-gray-100 transition">
+    Start Sensor
+  </button>
+
+     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xl text-center">
+    <div class="bg-white text-teal-700 rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-semibold">Alpha (Z)</h2>
+      <p id="alpha" class="text-2xl mt-2">0.00</p>
+    </div>i
+
+    <div class="bg-white text-teal-700 rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-semibold">Beta (X)</h2>
+      <p id="beta" class="text-2xl mt-2">0.00</p>
+    </div>
+    <div class="bg-white text-teal-700 rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-semibold">Gamma (Y)</h2>
+      <p id="gamma" class="text-2xl mt-2">0.00</p>
+    </div>
+  </div>
+
+  <div class="mt-10 w-40 h-40 bg-white rounded-full rotate-box shadow-lg" id="rotatingBox"></div>
+
+  <script>
+    async function initGyroscope() {
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function"
+      ) {
+        const response = await DeviceOrientationEvent.requestPermission();
+        if (response !== "granted") {
+          alert("Permission denied");
+          return;
+        }
+      }
+
+      window.addEventListener("deviceorientation", (event) => {
+        const alpha = event.alpha?.toFixed(2) || 0;
+        const beta = event.beta?.toFixed(2) || 0;
+        const gamma = event.gamma?.toFixed(2) || 0;
+
+        document.getElementById("alpha").textContent = alpha;
+        document.getElementById("beta").textContent = beta;
+        document.getElementById("gamma").textContent = gamma;
+
+        const box = document.getElementById("rotatingBox");
+        box.style.transform = `rotateZ(${alpha}deg) rotateX(${beta}deg) rotateY(${gamma}deg)`;
+      });
+    }
+
+    // PWA service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker Registered'));
+    }
+  </script>
+</body>
+</html>
